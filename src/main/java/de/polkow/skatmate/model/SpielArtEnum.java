@@ -14,9 +14,9 @@ public enum SpielArtEnum {
     
     GRAND("Grand"),
     
-    NULLSPIEL("Nullspiel"),
-    
-    RAMSCH("Ramsch");
+    NULLSPIEL("Nullspiel")/*,
+    TODO: Ramsch aktuell noch nicht unterstützt
+    //RAMSCH("Ramsch")*/;
 
     private final String value;
 

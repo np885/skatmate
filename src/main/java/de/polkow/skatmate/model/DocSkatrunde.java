@@ -1,16 +1,16 @@
 package de.polkow.skatmate.model;
 
+import lombok.Data;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.Data;
 
 /**
  * Skatrunde
  */
 @Data
-public class Skatrunde {
+public class DocSkatrunde {
 
   private Long id;
 
@@ -22,7 +22,7 @@ public class Skatrunde {
 
   private List<String> plazierung;
 
-  private List<Spiel> spielverlauf = new ArrayList<>();
+  private List<DocSpiel> spielverlauf = new ArrayList<>();
 
 }
 

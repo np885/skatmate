@@ -1,16 +1,16 @@
 package de.polkow.skatmate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import de.polkow.skatmate.model.AbrechnungsFormEnum;
+import de.polkow.skatmate.model.DocSkatrunde;
+import de.polkow.skatmate.model.DocSpiel;
+import de.polkow.skatmate.model.SpielArtEnum;
+import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
-import org.junit.jupiter.api.Test;
-
-import de.polkow.skatmate.model.AbrechnungsFormEnum;
-import de.polkow.skatmate.model.Skatrunde;
-import de.polkow.skatmate.model.Spiel;
-import de.polkow.skatmate.model.SpielArtEnum;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SpielarchivHandlerTest {
 
@@ -19,19 +19,19 @@ public class SpielarchivHandlerTest {
     @Test
     public void testBerechnePlazierungBierlachs() {
         //Given
-        Skatrunde skatrunde = new Skatrunde();
-        skatrunde.setId((long) 1);
-        skatrunde.setSpielerReihenfolge(List.of("Dennis", "Thomas", "Niclas", "Stefan"));
-        skatrunde.setAbrechnungsForm(AbrechnungsFormEnum.BIERLACHS);
-        skatrunde.setTageszeit(OffsetDateTime.now());
-        skatrunde.setSpielverlauf(List.of(
-            new Spiel(1, "x", "40", "", "", 40, SpielArtEnum.HERZ), 
-            new Spiel(2, "33", "x", "33", "", 33, SpielArtEnum.PIEK), 
-            new Spiel(3, "60", "", "x", "27", 27, SpielArtEnum.KARO), 
-            new Spiel(4, "84", "64", "", "x", 24, SpielArtEnum.KREUZ)));
+        DocSkatrunde docSkatrunde = new DocSkatrunde();
+        docSkatrunde.setId((long) 1);
+        docSkatrunde.setSpielerReihenfolge(List.of("Dennis", "Thomas", "Niclas", "Stefan"));
+        docSkatrunde.setAbrechnungsForm(AbrechnungsFormEnum.BIERLACHS);
+        docSkatrunde.setTageszeit(OffsetDateTime.now());
+        docSkatrunde.setSpielverlauf(List.of(
+            new DocSpiel(1, Map.of("Dennis", "x", "Thomas", "40", "Niclas", "", "Stefan", ""), 40, SpielArtEnum.HERZ),
+            new DocSpiel(2, Map.of("Dennis", "33", "Thomas", "x", "Niclas", "33", "Stefan", ""), 33, SpielArtEnum.PIEK),
+            new DocSpiel(3, Map.of("Dennis", "60", "Thomas","", "Niclas", "x", "Stefan", "27"), 27, SpielArtEnum.KARO),
+            new DocSpiel(4, Map.of("Dennis", "84", "Thomas", "64", "Niclas", "", "Stefan", "x"), 24, SpielArtEnum.KREUZ)));
 
         //When
-        Skatrunde result = handler.handleRequest(skatrunde, null);
+        DocSkatrunde result = handler.handleRequest(docSkatrunde, null);
 
         //Then
         assertEquals("Stefan", result.getPlazierung().get(0));
@@ -43,18 +43,18 @@ public class SpielarchivHandlerTest {
     @Test
     public void testBerechnePlazierungKlassisch() {
         //Given
-        Skatrunde skatrunde = new Skatrunde();
-        skatrunde.setId((long) 1);
-        skatrunde.setSpielerReihenfolge(List.of("Thomas", "Niclas", "Dennis"));
-        skatrunde.setAbrechnungsForm(AbrechnungsFormEnum.KLASSISCH);
-        skatrunde.setTageszeit(OffsetDateTime.now());
-        skatrunde.setSpielverlauf(List.of(
-                new Spiel(1, "", "", "-54",  -54, SpielArtEnum.KARO),
-                new Spiel(2, "", "22", "", "", 22, SpielArtEnum.PIEK),
-                new Spiel(3, "", "",  "-34", 20, SpielArtEnum.HERZ)
+        DocSkatrunde docSkatrunde = new DocSkatrunde();
+        docSkatrunde.setId((long) 1);
+        docSkatrunde.setSpielerReihenfolge(List.of("Thomas", "Niclas", "Dennis"));
+        docSkatrunde.setAbrechnungsForm(AbrechnungsFormEnum.KLASSISCH);
+        docSkatrunde.setTageszeit(OffsetDateTime.now());
+        docSkatrunde.setSpielverlauf(List.of(
+                new DocSpiel(1, Map.of("Thomas", "", "Niclas", "", "Dennis", "-54"),  -54, SpielArtEnum.KARO),
+                new DocSpiel(2, Map.of("Thomas", "", "Niclas", "22", "Dennis",""),  22, SpielArtEnum.PIEK),
+                new DocSpiel(3, Map.of("Thomas", "",  "Niclas", "",  "Dennis", "-34"), 20, SpielArtEnum.HERZ)
                         ));
         //When
-        Skatrunde result = handler.handleRequest(skatrunde, null);
+        DocSkatrunde result = handler.handleRequest(docSkatrunde, null);
 
         //Then
         assertEquals("Niclas", result.getPlazierung().get(0));

@@ -7,37 +7,25 @@
   "spielverlauf": [
     {
       "nr": 1,
-      "spieler1Wert": "x",
-      "spieler2Wert": "40",
-      "spieler3Wert": "",
-      "spieler4Wert": "",
+      "spielerWerteMap": {"Dennis": "x", "Thomas": "40", "Niclas": "", "Stefan": ""},
       "punkte": 40,
       "spielArt": "Herz"
     },
     {
       "nr": 2,
-      "spieler1Wert": "33",
-      "spieler2Wert": "x",
-      "spieler3Wert": "33",
-      "spieler4Wert": "",
+      "spielerWerteMap": {"Dennis": "33", "Thomas": "x", "Niclas": "33", "Stefan": ""},
       "punkte": 33,
       "spielArt": "Piek"
     },
     {
       "nr": 3,
-      "spieler1Wert": "60",
-      "spieler2Wert": "",
-      "spieler3Wert": "x",
-      "spieler4Wert": "27",
+      "spielerWerteMap": {"Dennis": "60", "Thomas": "", "Niclas": "x", "Stefan": "27"},
       "punkte": 27,
       "spielArt": "Karo"
     },
     {
       "nr": 4,
-      "spieler1Wert": "84",
-      "spieler2Wert": "64",
-      "spieler3Wert": "",
-      "spieler4Wert": "x",
+      "spielerWerteMap": {"Dennis": "84", "Thomas": "64", "Niclas": "", "Stefan": "x"},
       "punkte": 24,
       "spielArt": "Kreuz"
     }

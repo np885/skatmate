@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: Skatmate Api 
+  description: |-
+    Diese API enthaelt alle Operationen fuer die Skat App.
+    
+    Operationen
+    - persistiere bereits gespielte Skatabende
+  contact:
+    email: niclaspolkow@googlemail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0-SNAPSHOT
+servers:
+  - url: https://testenvironment.org/api/v1
+  - url: https://prodenvironment.org/api/v1
+tags:
+  - name: skatrunde
+    description: Operationen zu einer Skatrunde
+    externalDocs:
+      description: Mehr Informationen
+      url: https://de.wikipedia.org/wiki/Skat
+paths:
+  /skatrunde:
+    post:
+      tags:
+        - skatrunde
+      summary: Fuegt eine bereits gespielte Skatrunde der Spielgemeinschaft zu
+      description: Fuegt eine bereits gespielte Skatrunde der Spielgemeinschaft zu
+      operationId: addSkatrunde
+      requestBody:
+        description: Erstelle neue Skatrunde
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Skatrunde'
+        required: true
+      responses:
+        '200':
+          description: Erfolgreiche operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Skatrunde'
+        '400':
+          description: Bad request
+components:
+  schemas:
+    Skatrunde:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Eindeutige ID
+          format: int64
+          example: 10
+        tageszeit:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        spielerReihenfolge:
+          type: array
+          description: Sortierte Liste von Spielernamen; sortiert nach Sitz & Geberformation
+          example: Peter, Dieter, Hans
+          items: 
+            format: string
+            example: Peter
+        abrechnungsForm:
+          type: string
+          description: Skat Abrechnungsform nachder aufgeschrieben wird/wurde
+          example: bierlachs
+          enum:
+            - bierlachs
+            - klassisch
+        plazierung:
+          type: array
+          description: Liste der plazierten Spieler, sortiert nach overall Punkten; Gewinner zuerst.
+          example: [Peter, Hans, Dieter]
+          items:
+            format: string
+            example: Dieter
+        spielverlauf:
+          type: array
+          items:
+            $ref: '#/components/schemas/Spiel'
+      required:
+        - tageszeit
+        - spielerReihenfolge
+        - abrechnungsForm
+        - spielverlauf
+    Spiel:
+      type: object
+      properties:
+        nr:
+          type: integer
+          format: int64
+          example: 2
+        spieler1Wert:
+          type: string
+          description: x = Geber; 20 o. -40 = Punktestand; <leer> = gewonnen o. nicht gespielt
+          example: x
+        spieler2Wert:
+          type: string
+          description: x = Geber; 20 o. -40 = Punktestand; <leer> = gewonnen o. nicht gespielt
+          example: 40
+        spieler3Wert:
+          type: string
+          description: x = Geber; 20 o. -40 = Punktestand; <leer> = gewonnen o. nicht gespielt          
+          example: <leer>
+        spieler4Wert:
+          type: string
+          description: (optional); x = Geber; 20 o. -40 = Punktestand; <leer> = gewonnen o. nicht gespielt
+          example: <leer>
+        punkte:
+          type: integer
+          format: int32
+          example: 40
+        spielArt:
+          type: string
+          description: Handelt es sich um ein Farbenspiel, Grand, Null oder Ramsch
+          example: Herz
+          enum:
+          - Kreuz
+          - Piek
+          - Herz
+          - Karo
+          - Grand
+          - Nullspiel
+          - Ramsch
+      required:
+        - nr
+        - spieler1Wert
+        - spieler2Wert
+        - spieler3Wert

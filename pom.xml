@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.polkow</groupId>
+  <artifactId>skatmate-backend</artifactId>
+  
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>skatmate</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+
+    <aws-lambda-java-core.version>1.2.1</aws-lambda-java-core.version>
+    <slf4j-nop.version>2.0.6</slf4j-nop.version>
+    <lombok.version>1.18.28</lombok.version>
+    <junit-jupiter.version>5.8.2</junit-jupiter.version>
+    <commons-lang3.version>3.12.0</commons-lang3.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-core</artifactId>
+      <version>${aws-lambda-java-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>${slf4j-nop.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
+    </dependency>
+
+    <!-- Test libs -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- <plugin>
+          <groupId>org.openapitools</groupId>
+          <artifactId>openapi-generator-maven-plugin</artifactId>
+          <version>6.6.0</version>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>generate</goal>
+                  </goals>
+                  <configuration>
+                      <inputSpec>
+                          ${project.basedir}/src/main/resources/openapi/skatmate-openapi.yml
+                      </inputSpec>
+                      <generatorName>java</generatorName>
+                      <modelPackage>de.polkow.openapi.model</modelPackage>
+                      <generateApis>false</generateApis>
+                      <generateModels>true</generateModels>
+                      <generateModelDocumentation>false</generateModelDocumentation>
+                      <generateModelTests>false</generateModelTests>
+                      <generateSupportingFiles>true</generateSupportingFiles>
+                      <configOptions>
+                          <dateLibrary>java8</dateLibrary>
+                      </configOptions>
+                  </configuration>
+              </execution>
+          </executions>
+      </plugin> -->
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.2</version>
+        <configuration>
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+          <filters>
+            <filter>
+                <artifact>*:*</artifact>
+                <excludes>
+                    <exclude>module-info.class</exclude>
+                    <exclude>META-INF/*</exclude>
+                    <exclude>META-INF/versions/**</exclude>
+                    <exclude>META-INF/services/**</exclude>
+                </excludes>
+            </filter>
+          </filters>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+           <source>17</source>
+           <target>17</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

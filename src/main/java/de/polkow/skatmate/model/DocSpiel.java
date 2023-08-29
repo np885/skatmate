@@ -25,5 +25,11 @@ public class DocSpiel {
     this.spielArt = spielArt;
   }
 
+  public DocSpiel(Integer nr, Integer punkte, SpielArtEnum spielArt) {
+    this.nr = nr;
+    this.punkte = punkte;
+    this.spielArt = spielArt;
+  }
+
 }
 

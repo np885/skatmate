@@ -45,28 +45,28 @@ class SkatrundenImportServiceTest {
         assertEquals("Stefan", skatrunde.getSpieler().get(3));
 
         Spielrunde spielrunde1 = skatrunde.getSpielrunden().get(0);
-        assertEquals(1, spielrunde1.getRunde());
+        assertEquals(1, spielrunde1.getRundeNr());
         assertEquals("Thomas", spielrunde1.getReizGewinner());
         assertFalse(spielrunde1.isGewonnen());
         assertEquals(40, spielrunde1.getPunkte());
         assertEquals(SpielArtEnum.HERZ, spielrunde1.getSpielArt());
 
         Spielrunde spielrunde2 = skatrunde.getSpielrunden().get(1);
-        assertEquals(2, spielrunde2.getRunde());
+        assertEquals(2, spielrunde2.getRundeNr());
         assertEquals("Stefan", spielrunde2.getReizGewinner());
         assertTrue(spielrunde2.isGewonnen());
         assertEquals(33, spielrunde2.getPunkte());
         assertEquals(SpielArtEnum.PIEK, spielrunde2.getSpielArt());
 
         Spielrunde spielrunde3 = skatrunde.getSpielrunden().get(2);
-        assertEquals(3, spielrunde3.getRunde());
+        assertEquals(3, spielrunde3.getRundeNr());
         assertEquals("Thomas", spielrunde3.getReizGewinner());
         assertTrue(spielrunde3.isGewonnen());
         assertEquals(27, spielrunde3.getPunkte());
         assertEquals(SpielArtEnum.KARO, spielrunde3.getSpielArt());
 
         Spielrunde spielrunde4 = skatrunde.getSpielrunden().get(3);
-        assertEquals(4, spielrunde4.getRunde());
+        assertEquals(4, spielrunde4.getRundeNr());
         assertEquals("Niclas", spielrunde4.getReizGewinner());
         assertTrue(spielrunde4.isGewonnen());
         assertEquals(24, spielrunde4.getPunkte());
@@ -77,10 +77,49 @@ class SkatrundenImportServiceTest {
     @Test
     public void importDocSkatrundeKlassisch() {
         //Given documented Skatrunde in klassisch
+        OffsetDateTime now = OffsetDateTime.now();
+        DocSkatrunde docSkatrunde = new DocSkatrunde();
+        docSkatrunde.setId((long) 1);
+        docSkatrunde.setSpielerReihenfolge(List.of("Thomas", "Niclas", "Dennis"));
+        docSkatrunde.setAbrechnungsForm(AbrechnungsFormEnum.KLASSISCH);
+        docSkatrunde.setTageszeit(now);
+        docSkatrunde.setSpielverlauf(List.of(
+                new DocSpiel(1, Map.of("Thomas", "", "Niclas", "", "Dennis", "-54"), -54, SpielArtEnum.KARO),
+                new DocSpiel(2, Map.of("Thomas", "", "Niclas", "22", "Dennis", ""), 22, SpielArtEnum.PIEK),
+                new DocSpiel(3, Map.of("Thomas", "", "Niclas","", "Dennis", "-34"), 20, SpielArtEnum.HERZ)));
 
+        //When imported
+        Skatrunde skatrunde = SkatrundenImportService.importDocSkatrunde(docSkatrunde);
         //When imported
 
         //Then skatrunde should look like this
+        assertEquals(1, skatrunde.getId());
+        assertEquals(now.toLocalDateTime(), skatrunde.getTageszeit());
+        assertEquals(AbrechnungsFormEnum.KLASSISCH, skatrunde.getAbrechnungsForm());
 
+        assertEquals("Thomas", skatrunde.getSpieler().get(0));
+        assertEquals("Niclas", skatrunde.getSpieler().get(1));
+        assertEquals("Dennis", skatrunde.getSpieler().get(2));
+
+        Spielrunde spielrunde1 = skatrunde.getSpielrunden().get(0);
+        assertEquals(1, spielrunde1.getRundeNr());
+        assertEquals("Dennis", spielrunde1.getReizGewinner());
+        assertFalse(spielrunde1.isGewonnen());
+        assertEquals(54, spielrunde1.getPunkte());
+        assertEquals(SpielArtEnum.KARO, spielrunde1.getSpielArt());
+
+        Spielrunde spielrunde2 = skatrunde.getSpielrunden().get(1);
+        assertEquals(2, spielrunde2.getRundeNr());
+        assertEquals("Niclas", spielrunde2.getReizGewinner());
+        assertTrue(spielrunde2.isGewonnen());
+        assertEquals(22, spielrunde2.getPunkte());
+        assertEquals(SpielArtEnum.PIEK, spielrunde2.getSpielArt());
+
+        Spielrunde spielrunde3 = skatrunde.getSpielrunden().get(2);
+        assertEquals(3, spielrunde3.getRundeNr());
+        assertEquals("Dennis", spielrunde3.getReizGewinner());
+        assertTrue(spielrunde3.isGewonnen());
+        assertEquals(20, spielrunde3.getPunkte());
+        assertEquals(SpielArtEnum.HERZ, spielrunde3.getSpielArt());
     }
 }

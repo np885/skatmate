@@ -11,10 +11,11 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SpielarchivHandler implements RequestHandler<DocSkatrunde, DocSkatrunde> {
+public class SpielarchivHandler implements RequestHandler<String, String> {
 
     @Override
-    public DocSkatrunde handleRequest(DocSkatrunde input, Context context) {
+    public String handleRequest(String inputString, Context context) {
+        DocSkatrunde input = new DocSkatrunde();
         //validate Input
         ValidationInputService.validateSkatrunde(input);
 
@@ -22,7 +23,7 @@ public class SpielarchivHandler implements RequestHandler<DocSkatrunde, DocSkatr
         //Berechne Platzierung
         output.setPlazierung(berechnePlatzierung(input.getSpielverlauf(), input.getAbrechnungsForm()));
 
-        return output;
+        return "Hello World: " + inputString;
     }
 
     private List<String> berechnePlatzierung(List<DocSpiel> spielverlauf, AbrechnungsFormEnum abrechnungsForm) {

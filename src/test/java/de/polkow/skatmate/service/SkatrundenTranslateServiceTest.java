@@ -15,7 +15,7 @@ import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SkatrundenTranslateServiceTest {
+class TSkatrundenTranslateServiceTest {
 
     @Test
     void translateSkatrundeToBierlachs() {
@@ -29,7 +29,7 @@ class SkatrundenTranslateServiceTest {
         skatrunde.setSpielrunden(List.of(
                 new Spielrunde(1, "Thomas", false, 40, SpielArtEnum.HERZ),
                 new Spielrunde(2, "Stefan", true, 33, SpielArtEnum.PIEK),
-                new Spielrunde(3, "Thomas", true, 27, SpielArtEnum.KARO),
+                new Spielrunde(3, "Dennis", true, 27, SpielArtEnum.KARO),
                 new Spielrunde(4, "Niclas", true, 24, SpielArtEnum.KREUZ)));
 
         //When translate it to DocSkatrunde in Bierlachs

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -198,19 +197,10 @@ func ParseAbrechnungsform(input string) (Abrechnungsform, error) {
 	}
 }
 
-func main() {
-	filePath := "game_data.csv"
-	content, err := os.ReadFile(filePath)
-
-	if err != nil {
-		log.Fatalf("Faild to read file: %w", err)
-	}
-	strContent := string(content)
-
+func ParseSkatCsvFile(input string) DocSkatrunde {
 	//Import and parse DocSkatrunden Struktur
 	var docSkatrunde DocSkatrunde
-
-	for i, line := range strings.Split(strContent, "\n") {
+	for i, line := range strings.Split(input, "\n") {
 		if i == 0 {
 			//Get MetaData information
 			metaData := strings.Split(line, ";")
@@ -222,7 +212,6 @@ func main() {
 					log.Fatalf("[line %d] Error parsing Abrechnungsform.\n", i)
 				}
 				docSkatrunde.Date = strings.Split(metaData[1], "=")[1]
-				fmt.Printf("[Parsed] AbrechnungsForm is %s and date is %s\n", docSkatrunde.Abrechnungsform, docSkatrunde.Date)
 			} else {
 				//error
 				log.Fatalf("[line %d] Error parsing MetaData\n", i+1)
@@ -245,7 +234,6 @@ func main() {
 			} else {
 				log.Fatalf("[line %d] Error parsing HeaderData\n", i+1)
 			}
-			fmt.Printf("[Parsed] Spieler: %s\n", docSkatrunde.Spieler)
 		} else if i > 1 {
 			//Get Gameround information
 			spielRunde := strings.Split(line, ";")
@@ -257,6 +245,19 @@ func main() {
 			}
 		}
 	}
+	return docSkatrunde
+}
+
+func main() {
+	filePath := "game_data.csv"
+	content, err := os.ReadFile(filePath)
+
+	if err != nil {
+		log.Fatalf("Faild to read file: %w", err)
+	}
+	strContent := string(content)
+
+	docSkatrunde := ParseSkatCsvFile(strContent)
 
 	//finished parsing
 	log.Printf("[Paresed] DocSkatrunde: %+v\n", docSkatrunde)

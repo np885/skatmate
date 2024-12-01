@@ -207,6 +207,7 @@ func main() {
 	}
 	strContent := string(content)
 
+	//Import and parse DocSkatrunden Struktur
 	var docSkatrunde DocSkatrunde
 
 	for i, line := range strings.Split(strContent, "\n") {
@@ -264,10 +265,11 @@ func main() {
 	var skatrunde = docSkatrunde.ToSkatrunde()
 	log.Printf("[Transformed] DocSkatrunde -> Skatrunde: %+v\n", skatrunde)
 
-	//transfer Skatrunde -> DocSkatrunde
+	//transfer Skatrunde -> DocSkatrunde Bierlachs
 	var bierlachsSkatrunde = skatrunde.ToDocSkatrunde(Bierlachs)
 	log.Printf("[Transformed] Skatrunde -> DocSkatrunde mit Bierlachs : %+v\n", bierlachsSkatrunde)
 
+	//transfer Skatrunde -> DocSkatrunde LeipzigerSkat
 	var leipzigSkatrunde = skatrunde.ToDocSkatrunde(LeipzigerSkat)
 	log.Printf("[Transformed] Skatrunde -> DocSkatrunde mit LeipzigerSkat : %+v\n", leipzigSkatrunde)
 

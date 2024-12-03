@@ -94,7 +94,7 @@ func ParseSkatCsvFile(input string) skat.DocSkatrunde {
 }
 
 func main() {
-	filePath := "game_data.csv"
+	filePath := "../game_data.csv"
 	content, err := os.ReadFile(filePath)
 
 	if err != nil {

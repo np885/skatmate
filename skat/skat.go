@@ -36,9 +36,10 @@ type Skatrunde struct {
 
 func (docSpiel DocSpiel) ToSpiel(abrechnungsform Abrechnungsform) Spiel {
 	var spiel Spiel
-	spiel.Punkte = docSpiel.Punkte
+
 	var countEmptyInput int
 	if abrechnungsform == Bierlachs {
+		spiel.Punkte = docSpiel.Punkte
 		//Read all blanks
 		for _, value := range docSpiel.SpielerPunkte {
 			if value == "" {
@@ -70,8 +71,10 @@ func (docSpiel DocSpiel) ToSpiel(abrechnungsform Abrechnungsform) Spiel {
 			//check for Punkte pos -> won; neg -> lost
 			if docSpiel.Punkte > 0 {
 				spiel.Gewonnen = true
+				spiel.Punkte = docSpiel.Punkte
 			} else {
 				spiel.Gewonnen = false
+				spiel.Punkte = docSpiel.Punkte * -1
 			}
 		}
 	}

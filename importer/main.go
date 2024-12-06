@@ -7,7 +7,39 @@ import (
 	"path/filepath"
 )
 
-func getCSVFiles(dir string) ([]string, error) {
+func isDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.IsDir(), err
+}
+
+func getCSVFiles(args []string) ([]string, error) {
+	var csvFiles []string
+
+	//check if its file or dir
+	for _, arg := range args {
+		isDir, err := isDirectory(arg)
+		if err != nil {
+			return nil, err
+		}
+		if isDir {
+			csvFilesFromDir, err := getCSVFilesFromDir(arg)
+			if err != nil {
+				return nil, err
+			}
+			csvFiles = append(csvFiles, csvFilesFromDir...)
+		} else {
+			if filepath.Ext(arg) == ".csv" {
+				csvFiles = append(csvFiles, arg)
+			}
+		}
+	}
+	return csvFiles, nil
+}
+
+func getCSVFilesFromDir(dir string) ([]string, error) {
 	var csvFiles []string
 
 	// Walk through the directory
@@ -30,10 +62,10 @@ func getCSVFiles(dir string) ([]string, error) {
 }
 
 func main() {
-	//filePath := "../game_data.csv"
-	//filePath := "../data/20241204_bierlachs.csv"
-	//filePath := "../data/20241009_leipzigerskat.csv"
-	csvFiles, err := getCSVFiles("../data")
+	//An programmargument is either a file or a directory
+	args := os.Args
+	log.Printf("Programm executed with args: %v", args[1:])
+	csvFiles, err := getCSVFiles(args)
 	if err != nil {
 		log.Fatalf("Error while reading directories for csv-Files, %v", err)
 	}

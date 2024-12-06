@@ -542,6 +542,9 @@ func TestCalculatePlatzierung3SpielerBierlachs(t *testing.T) {
 	platzierung := calculatePlatzierung(spielerPunkte, Bierlachs)
 
 	//Then
+	if len(platzierung) != 3 {
+		t.Errorf("Platzierung should be calclulated for 3 players but was %d", len(platzierung))
+	}
 	if platzierung[0].Nr != 2 || platzierung[0].Endpunkte != 22 {
 		t.Errorf("Spieler 1 should be places 2 with 22 points but was %d with points %d", platzierung[0].Nr, platzierung[0].Endpunkte)
 	}

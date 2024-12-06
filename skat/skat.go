@@ -242,13 +242,16 @@ func (skatrunde Skatrunde) ToDocSkatrunde(abrechnungsform Abrechnungsform) DocSk
 	docSkatrunde.Spieler = skatrunde.Spieler
 	docSkatrunde.Abrechnungsform = abrechnungsform
 	var isVierSpieler bool
+	var spielerPunkteZuvor []int
 	if len(skatrunde.Spieler) == 4 {
 		isVierSpieler = true
+		spielerPunkteZuvor = make([]int, 4)
 	} else {
 		isVierSpieler = false
+		spielerPunkteZuvor = make([]int, 3)
+
 	}
 
-	spielerPunkteZuvor := make([]int, 4)
 	for i, spiel := range skatrunde.Spielverlauf {
 		var docSpiel = spiel.ToDocSpiel(abrechnungsform, isVierSpieler, i, spielerPunkteZuvor)
 		for i, spielerWert := range docSpiel.SpielerPunkte {

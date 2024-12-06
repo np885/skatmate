@@ -22,12 +22,17 @@ func ParseSpiel(input []string) (*skat.DocSpiel, error) {
 	}
 	//Spiel Punkte können aus 1 oder 3 Punkten bestehen
 	var punkteIntList []int
+	var sum int
 	for _, punkte := range punkteList {
 		punkteInt, err := strconv.Atoi(punkte)
 		if err != nil {
 			return nil, errors.New("Punkte in DocSpiel are not a number")
 		}
 		punkteIntList = append(punkteIntList, punkteInt)
+		sum += punkteInt
+	}
+	if len(punkteIntList) == 3 && sum != 120 {
+		return nil, errors.New("The points at Ramsch Game should sum up to 120 but was " + strconv.Itoa(sum))
 	}
 	spiel.Punkte = punkteIntList
 	return &spiel, nil

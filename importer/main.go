@@ -11,23 +11,26 @@ import (
 
 func ParseSpiel(input []string) (*skat.DocSpiel, error) {
 	var spiel skat.DocSpiel
+	var punkteList []string
 	if len(input) == 4 {
 		spiel.SpielerPunkte = input[:3]
-		punkteInt, err := strconv.Atoi(input[3])
-		if err != nil {
-			return nil, errors.New("Punkte in DocSpiel are not a number")
-		}
-		spiel.Punkte = punkteInt
+		punkteList = strings.Split(input[3], ",")
 	} else if len(input) == 5 {
 		spiel.SpielerPunkte = input[:4]
-		punkteInt, err := strconv.Atoi(input[4])
-		if err != nil {
-			return nil, errors.New("Punkte in DocSpiel are not a number")
-		}
-		spiel.Punkte = punkteInt
+		punkteList = strings.Split(input[4], ",")
 	} else {
 		return nil, errors.New("Invalid DocSpiel in Dataset")
 	}
+	//Spiel Punkte können aus 1 oder 3 Punkten bestehen
+	var punkteIntList []int
+	for _, punkte := range punkteList {
+		punkteInt, err := strconv.Atoi(punkte)
+		if err != nil {
+			return nil, errors.New("Punkte in DocSpiel are not a number")
+		}
+		punkteIntList = append(punkteIntList, punkteInt)
+	}
+	spiel.Punkte = punkteIntList
 	return &spiel, nil
 }
 

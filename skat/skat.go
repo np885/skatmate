@@ -15,7 +15,7 @@ const (
 )
 
 type DocSpiel struct {
-	Punkte        int
+	Punkte        []int
 	SpielerPunkte []string
 }
 
@@ -39,7 +39,7 @@ type DocSkatrunde struct {
 type Spiel struct {
 	ReizGewinner int
 	Gewonnen     bool
-	Punkte       int
+	Punkte       []int
 }
 
 type Skatrunde struct {
@@ -80,8 +80,10 @@ func calculatePlatzierung(spielerPunkte []int, abrechnungsform Abrechnungsform) 
 
 func (docSpiel DocSpiel) ToSpiel(abrechnungsform Abrechnungsform) Spiel {
 	var spiel Spiel
-
 	var countEmptyInput int
+
+	ramsch := len(docSpiel.Punkte) > 1
+
 	if abrechnungsform == Bierlachs {
 		spiel.Punkte = docSpiel.Punkte
 		//Read all blanks
@@ -90,35 +92,57 @@ func (docSpiel DocSpiel) ToSpiel(abrechnungsform Abrechnungsform) Spiel {
 				countEmptyInput++
 			}
 		}
-		//decide if won or not
-		if countEmptyInput == 1 {
-			spiel.Gewonnen = true
-		} else if countEmptyInput == 2 {
+		//First check if its Ramsch
+		if ramsch {
 			spiel.Gewonnen = false
+		} else {
+			//decide if won or not
+			if countEmptyInput == 1 {
+				spiel.Gewonnen = true
+			} else if countEmptyInput == 2 {
+				spiel.Gewonnen = false
+			}
 		}
-		//check who is Reizgewinner
-		for i, value := range docSpiel.SpielerPunkte {
-			if spiel.Gewonnen {
-				if value == "" {
+
+		//First check ramsch
+		if ramsch {
+			spiel.ReizGewinner = -1
+		} else {
+			//check who is Reizgewinner
+			for i, value := range docSpiel.SpielerPunkte {
+				if spiel.Gewonnen {
+					if value == "" {
+						spiel.ReizGewinner = i
+					}
+				} else if _, err := strconv.Atoi(value); err == nil {
 					spiel.ReizGewinner = i
 				}
-			} else if _, err := strconv.Atoi(value); err == nil {
-				spiel.ReizGewinner = i
 			}
 		}
 	} else if abrechnungsform == LeipzigerSkat {
 		for i, value := range docSpiel.SpielerPunkte {
-			//check for number -> thats the player
-			if _, err := strconv.Atoi(value); err == nil {
-				spiel.ReizGewinner = i
-			}
-			//check for Punkte pos -> won; neg -> lost
-			if docSpiel.Punkte > 0 {
-				spiel.Gewonnen = true
-				spiel.Punkte = docSpiel.Punkte
-			} else {
+
+			if ramsch {
+				spiel.ReizGewinner = -1
 				spiel.Gewonnen = false
-				spiel.Punkte = docSpiel.Punkte * -1
+				var spielPunkte []int
+				for _, punkte := range docSpiel.Punkte {
+					spielPunkte = append(spielPunkte, punkte*-1)
+				}
+				spiel.Punkte = spielPunkte
+			} else {
+				//check for number -> thats the player
+				if _, err := strconv.Atoi(value); err == nil {
+					spiel.ReizGewinner = i
+					//check for Punkte pos -> won; neg -> lost
+					if docSpiel.Punkte[0] > 0 {
+						spiel.Gewonnen = true
+						spiel.Punkte = docSpiel.Punkte
+					} else {
+						spiel.Gewonnen = false
+						spiel.Punkte = []int{docSpiel.Punkte[0] * -1}
+					}
+				}
 			}
 		}
 	}
@@ -147,6 +171,7 @@ func (docSkatrunde DocSkatrunde) ToSkatrunde() Skatrunde {
 func (spiel Spiel) ToDocSpiel(abrechnungsform Abrechnungsform, isVierSpieler bool, spielNr int, spielerPunkteZuvor []int) DocSpiel {
 	var docSpiel DocSpiel
 	var spielerPunkte []string
+	ramsch := spiel.ReizGewinner == -1
 
 	if abrechnungsform == Bierlachs {
 		docSpiel.Punkte = spiel.Punkte
@@ -160,18 +185,32 @@ func (spiel Spiel) ToDocSpiel(abrechnungsform Abrechnungsform, isVierSpieler boo
 		if spiel.Gewonnen {
 			for i, value := range spielerPunkte {
 				if i != spiel.ReizGewinner && value == "" {
-					spielerPunkte[i] = strconv.Itoa(spiel.Punkte + spielerPunkteZuvor[i])
+					spielerPunkte[i] = strconv.Itoa(spiel.Punkte[0] + spielerPunkteZuvor[i])
 				}
 			}
 		} else {
-			spielerPunkte[spiel.ReizGewinner] = strconv.Itoa(spiel.Punkte + spielerPunkteZuvor[spiel.ReizGewinner])
+			//check if ramsch
+			if ramsch {
+				d := 0
+				for i, _ := range spielerPunkte {
+					if spielerPunkte[i] != "*" {
+						spielerPunkte[i] = strconv.Itoa(spiel.Punkte[d] + spielerPunkteZuvor[i])
+						d++
+					}
+				}
+			} else {
+				spielerPunkte[spiel.ReizGewinner] = strconv.Itoa(spiel.Punkte[0] + spielerPunkteZuvor[spiel.ReizGewinner])
+			}
 		}
-
 	} else if abrechnungsform == LeipzigerSkat {
 		if spiel.Gewonnen {
 			docSpiel.Punkte = spiel.Punkte
 		} else {
-			docSpiel.Punkte = spiel.Punkte * -1
+			var spielPunkte []int
+			for _, value := range spiel.Punkte {
+				spielPunkte = append(spielPunkte, value*-1)
+			}
+			docSpiel.Punkte = spielPunkte
 		}
 
 		//Set waiting person
@@ -181,7 +220,17 @@ func (spiel Spiel) ToDocSpiel(abrechnungsform Abrechnungsform, isVierSpieler boo
 		} else {
 			spielerPunkte = make([]string, 3)
 		}
-		spielerPunkte[spiel.ReizGewinner] = strconv.Itoa(docSpiel.Punkte + spielerPunkteZuvor[spiel.ReizGewinner])
+		if ramsch {
+			d := 0
+			for i, _ := range spielerPunkte {
+				if spielerPunkte[i] != "*" {
+					spielerPunkte[i] = strconv.Itoa(spiel.Punkte[d] + spielerPunkteZuvor[i])
+					d++
+				}
+			}
+		} else {
+			spielerPunkte[spiel.ReizGewinner] = strconv.Itoa(docSpiel.Punkte[0] + spielerPunkteZuvor[spiel.ReizGewinner])
+		}
 	}
 	docSpiel.SpielerPunkte = spielerPunkte
 	return docSpiel

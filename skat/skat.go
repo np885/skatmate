@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type Abrechnungsform string
@@ -236,6 +237,23 @@ func (spiel Spiel) ToDocSpiel(abrechnungsform Abrechnungsform, isVierSpieler boo
 	return docSpiel
 }
 
+func (spiel Spiel) ToString() string {
+	var str string
+	if spiel.ReizGewinner >= 0 {
+		str = fmt.Sprintf("Spieler %d ist ReizGewinner;", spiel.ReizGewinner)
+	} else {
+		str = fmt.Sprintf("Kein Reizgewinner > RAMSCH;")
+	}
+	if spiel.Gewonnen {
+		str += fmt.Sprintf("Spiel wurde gewonnen;")
+	} else {
+		str += fmt.Sprintf("Spiel wurde verloren;")
+	}
+	strArrOfPunkte := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(spiel.Punkte)), ","), "")
+	str += fmt.Sprintf("Punkte %v ", strArrOfPunkte)
+	return str
+}
+
 func (skatrunde Skatrunde) ToDocSkatrunde(abrechnungsform Abrechnungsform) DocSkatrunde {
 	var docSkatrunde DocSkatrunde
 	docSkatrunde.Date = skatrunde.Date
@@ -279,6 +297,15 @@ func (docSkatrunde DocSkatrunde) ToString() string {
 	str += "==========\n"
 	for _, platz := range docSkatrunde.Platzierung {
 		str += fmt.Sprintf("%s;", platz.ToString())
+	}
+	return str
+}
+
+func (skatrunde Skatrunde) ToString() string {
+	str := fmt.Sprintf("Skatrunde vom %s\n", skatrunde.Date)
+	str += fmt.Sprintf("Spieler %s\n", skatrunde.Spieler)
+	for _, spiel := range skatrunde.Spielverlauf {
+		str += fmt.Sprintf("%v\n", spiel.ToString())
 	}
 	return str
 }

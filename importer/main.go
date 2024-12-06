@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func isDirectory(path string) (bool, error) {
@@ -71,6 +72,8 @@ func main() {
 	}
 	var skatrunden []skat.Skatrunde
 
+	startImportCSVFiles := time.Now()
+
 	for _, filepath := range csvFiles {
 		content, err := os.ReadFile(filepath)
 		if err != nil {
@@ -82,6 +85,9 @@ func main() {
 
 		skatrunden = append(skatrunden, docSkatrunde.ToSkatrunde())
 	}
+
+	elapsedImportCSVFiles := time.Since(startImportCSVFiles)
+	log.Printf("Import CSV-Files took %s", elapsedImportCSVFiles)
 
 	log.Printf("Skatrunden geladen, Anzhal: %d\n", len(skatrunden))
 	for _, skatrunde := range skatrunden {

@@ -1,6 +1,10 @@
 package skat
 
-import "strconv"
+import (
+	"fmt"
+	"sort"
+	"strconv"
+)
 
 type Abrechnungsform string
 
@@ -15,11 +19,21 @@ type DocSpiel struct {
 	SpielerPunkte []string
 }
 
+type Platz struct {
+	Nr        int
+	Endpunkte int
+}
+
+func (p Platz) ToString() string {
+	return fmt.Sprintf("%d,%d", p.Nr, p.Endpunkte)
+}
+
 type DocSkatrunde struct {
 	Date            string
 	Abrechnungsform Abrechnungsform
 	Spieler         []string
 	Spielverlauf    []DocSpiel
+	Platzierung     []Platz
 }
 
 type Spiel struct {
@@ -32,6 +46,36 @@ type Skatrunde struct {
 	Date         string
 	Spieler      []string
 	Spielverlauf []Spiel
+}
+
+// Kinda ugly there might be better ways to do it
+func calculatePlatzierung(spielerPunkte []int, abrechnungsform Abrechnungsform) []Platz {
+	spielerAnzahl := len(spielerPunkte)
+	var platzierung = make([]Platz, spielerAnzahl)
+	//copy and sort the copy to check who's won
+	sortedSpielerPunkte := make([]int, spielerAnzahl)
+	copy(sortedSpielerPunkte, spielerPunkte)
+	sort.Ints(sortedSpielerPunkte)
+	//set offset kinda ugly
+	var offset []int
+	if abrechnungsform == LeipzigerSkat {
+		if spielerAnzahl == 4 {
+			offset = []int{4, 2, 0, -2}
+		} else {
+			offset = []int{3, 1, -1}
+		}
+	} else if abrechnungsform == Bierlachs {
+		offset = []int{1, 1, 1, 1}
+	}
+
+	for i, punkte := range spielerPunkte {
+		for d, sortedPunkte := range sortedSpielerPunkte {
+			if punkte == sortedPunkte {
+				platzierung[i] = Platz{d + offset[d], punkte}
+			}
+		}
+	}
+	return platzierung
 }
 
 func (docSpiel DocSpiel) ToSpiel(abrechnungsform Abrechnungsform) Spiel {
@@ -79,6 +123,15 @@ func (docSpiel DocSpiel) ToSpiel(abrechnungsform Abrechnungsform) Spiel {
 		}
 	}
 	return spiel
+}
+
+func (docSpiel DocSpiel) ToString() string {
+	var str string
+	for _, spielerPunkte := range docSpiel.SpielerPunkte {
+		str += fmt.Sprintf("%v;", spielerPunkte)
+	}
+	str += fmt.Sprintf("%v;", docSpiel.Punkte)
+	return str
 }
 
 func (docSkatrunde DocSkatrunde) ToSkatrunde() Skatrunde {
@@ -157,6 +210,23 @@ func (skatrunde Skatrunde) ToDocSkatrunde(abrechnungsform Abrechnungsform) DocSk
 		}
 		docSkatrunde.Spielverlauf = append(docSkatrunde.Spielverlauf, docSpiel)
 	}
-
+	//Platzierung berechnen
+	docSkatrunde.Platzierung = calculatePlatzierung(spielerPunkteZuvor, abrechnungsform)
 	return docSkatrunde
+}
+
+func (docSkatrunde DocSkatrunde) ToString() string {
+	str := fmt.Sprintf("abrechnungsform=%v;date=%s\n", docSkatrunde.Abrechnungsform, docSkatrunde.Date)
+	for _, spieler := range docSkatrunde.Spieler {
+		str += fmt.Sprintf("%v;", spieler)
+	}
+	str += "Spiel;\n"
+	for _, spiel := range docSkatrunde.Spielverlauf {
+		str += fmt.Sprintf("%s\n", spiel.ToString())
+	}
+	str += "==========\n"
+	for _, platz := range docSkatrunde.Platzierung {
+		str += fmt.Sprintf("%s;", platz.ToString())
+	}
+	return str
 }

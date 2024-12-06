@@ -193,9 +193,13 @@ func TestDocSkatrunde_ToSkatrundeBierlachs(t *testing.T) {
 	docSpiel1 := DocSpiel{40, []string{"40", "", ""}}
 	docSpiel2 := DocSpiel{48, []string{"88", "48", ""}}
 	spielverlauf := []DocSpiel{docSpiel1, docSpiel2}
-	docSkatrunde := DocSkatrunde{
-		date, Bierlachs,
-		spielerList, spielverlauf}
+
+	var docSkatrunde DocSkatrunde
+	docSkatrunde.Date = date
+	docSkatrunde.Abrechnungsform = Bierlachs
+	docSkatrunde.Spieler = spielerList
+	docSkatrunde.Spielverlauf = spielverlauf
+
 	//When
 	skatrunde := docSkatrunde.ToSkatrunde()
 
@@ -240,9 +244,13 @@ func TestDocSkatrunde_ToSkatrundeLeipzigerSkat(t *testing.T) {
 	docSpiel1 := DocSpiel{20, []string{"*", "", "20", ""}}
 	docSpiel2 := DocSpiel{-96, []string{"-96", "*", "", ""}}
 	spielverlauf := []DocSpiel{docSpiel1, docSpiel2}
-	docSkatrunde := DocSkatrunde{
-		date, LeipzigerSkat,
-		spielerList, spielverlauf}
+
+	var docSkatrunde DocSkatrunde
+	docSkatrunde.Date = date
+	docSkatrunde.Abrechnungsform = LeipzigerSkat
+	docSkatrunde.Spieler = spielerList
+	docSkatrunde.Spielverlauf = spielverlauf
+
 	//When
 	skatrunde := docSkatrunde.ToSkatrunde()
 
@@ -389,5 +397,87 @@ func TestSkatrunde_ToDocSkatrundeLeipzigerSkat(t *testing.T) {
 	}
 	if docSkatrunde.Spielverlauf[1].SpielerPunkte[3] != "" {
 		t.Errorf("Spieler 3 should has `` but got %s", docSkatrunde.Spielverlauf[0].SpielerPunkte[0])
+	}
+}
+
+func TestCalculatePlatzierung4SpielerBierlachs(t *testing.T) {
+	//Given
+	spielerPunkte := []int{22, 33, 44, 11}
+
+	//When
+	platzierung := calculatePlatzierung(spielerPunkte, Bierlachs)
+
+	//Then
+	if platzierung[0].Nr != 2 || platzierung[0].Endpunkte != 22 {
+		t.Errorf("Spieler 1 should be places 2 with 22 points but was %d with points %d", platzierung[0].Nr, platzierung[0].Endpunkte)
+	}
+	if platzierung[1].Nr != 3 || platzierung[1].Endpunkte != 33 {
+		t.Errorf("Spieler 2 should be places 3 with 33 points but was %d with points %d", platzierung[1].Nr, platzierung[1].Endpunkte)
+	}
+	if platzierung[2].Nr != 4 || platzierung[2].Endpunkte != 44 {
+		t.Errorf("Spieler 3 should be places 4 with 44 points but was %d with points %d", platzierung[2].Nr, platzierung[2].Endpunkte)
+	}
+	if platzierung[3].Nr != 1 || platzierung[3].Endpunkte != 11 {
+		t.Errorf("Spieler 4 should be places 1 with 11 points but was %d with points %d", platzierung[3].Nr, platzierung[3].Endpunkte)
+	}
+}
+
+func TestCalculatePlatzierung3SpielerBierlachs(t *testing.T) {
+	//Given
+	spielerPunkte := []int{22, 33, 11}
+
+	//When
+	platzierung := calculatePlatzierung(spielerPunkte, Bierlachs)
+
+	//Then
+	if platzierung[0].Nr != 2 || platzierung[0].Endpunkte != 22 {
+		t.Errorf("Spieler 1 should be places 2 with 22 points but was %d with points %d", platzierung[0].Nr, platzierung[0].Endpunkte)
+	}
+	if platzierung[1].Nr != 3 || platzierung[1].Endpunkte != 33 {
+		t.Errorf("Spieler 2 should be places 3 with 33 points but was %d with points %d", platzierung[1].Nr, platzierung[1].Endpunkte)
+	}
+	if platzierung[2].Nr != 1 || platzierung[2].Endpunkte != 11 {
+		t.Errorf("Spieler 4 should be places 1 with 11 points but was %d with points %d", platzierung[2].Nr, platzierung[2].Endpunkte)
+	}
+}
+
+func TestCalculatePlatzierung4SpielerLeipzigerSkat(t *testing.T) {
+	//Given
+	spielerPunkte := []int{22, 33, 44, 11}
+
+	//When
+	platzierung := calculatePlatzierung(spielerPunkte, LeipzigerSkat)
+
+	//Then
+	if platzierung[0].Nr != 3 || platzierung[0].Endpunkte != 22 {
+		t.Errorf("Spieler 1 should be places 3 with 22 points but was %d with points %d", platzierung[0].Nr, platzierung[0].Endpunkte)
+	}
+	if platzierung[1].Nr != 2 || platzierung[1].Endpunkte != 33 {
+		t.Errorf("Spieler 2 should be places 2 with 33 points but was %d with points %d", platzierung[1].Nr, platzierung[1].Endpunkte)
+	}
+	if platzierung[2].Nr != 1 || platzierung[2].Endpunkte != 44 {
+		t.Errorf("Spieler 3 should be places 1 with 44 points but was %d with points %d", platzierung[2].Nr, platzierung[2].Endpunkte)
+	}
+	if platzierung[3].Nr != 4 || platzierung[3].Endpunkte != 11 {
+		t.Errorf("Spieler 4 should be places 4 with 11 points but was %d with points %d", platzierung[3].Nr, platzierung[3].Endpunkte)
+	}
+}
+
+func TestCalculatePlatzierung3SpielerLeipzigerSkat(t *testing.T) {
+	//Given
+	spielerPunkte := []int{22, 33, 11}
+
+	//When
+	platzierung := calculatePlatzierung(spielerPunkte, LeipzigerSkat)
+
+	//Then
+	if platzierung[0].Nr != 2 || platzierung[0].Endpunkte != 22 {
+		t.Errorf("Spieler 1 should be places 2 with 22 points but was %d with points %d", platzierung[0].Nr, platzierung[0].Endpunkte)
+	}
+	if platzierung[1].Nr != 1 || platzierung[1].Endpunkte != 33 {
+		t.Errorf("Spieler 2 should be places 1 with 33 points but was %d with points %d", platzierung[1].Nr, platzierung[1].Endpunkte)
+	}
+	if platzierung[2].Nr != 3 || platzierung[2].Endpunkte != 11 {
+		t.Errorf("Spieler 3 should be places 3 with 11 points but was %d with points %d", platzierung[2].Nr, platzierung[2].Endpunkte)
 	}
 }

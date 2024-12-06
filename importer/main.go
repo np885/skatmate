@@ -45,11 +45,12 @@ func ParseAbrechnungsform(input string) (skat.Abrechnungsform, error) {
 func ParseSkatCsvFile(input string) skat.DocSkatrunde {
 	//Import and parse DocSkatrunden Struktur
 	var docSkatrunde skat.DocSkatrunde
+	var spieleranzahl int
 	for i, line := range strings.Split(input, "\n") {
 		if i == 0 {
 			//Get MetaData information
 			metaData := strings.Split(line, ";")
-			if len(metaData) == 2 {
+			if len(metaData) >= 2 {
 				abrechnungsform, err := ParseAbrechnungsform(strings.Split(metaData[0], "=")[1])
 				if err == nil {
 					docSkatrunde.Abrechnungsform = abrechnungsform
@@ -65,28 +66,23 @@ func ParseSkatCsvFile(input string) skat.DocSkatrunde {
 		} else if i == 1 {
 			//Get player information
 			header := strings.Split(line, ";")
-			game := header[len(header)-1]
-			if !strings.EqualFold("Spiel", game) {
-				log.Fatalf("[line %d] Error parsing `DocSpiel`in Header", i+1)
+			for d, headerValue := range header {
+				if strings.EqualFold("Spiel", headerValue) {
+					spieleranzahl = d
+					docSkatrunde.Spieler = header[:spieleranzahl]
+				}
 			}
-
-			if len(header) == 4 {
-				//4 Player round
-				docSkatrunde.Spieler = header[:3]
-			} else if len(header) == 5 {
-				//3 Player round
-				docSkatrunde.Spieler = header[:4]
-			} else {
-				log.Fatalf("[line %d] Error parsing HeaderData\n", i+1)
+			if docSkatrunde.Spieler == nil {
+				log.Fatalf("[line %d] Error parsing Spieler\n", i)
 			}
 		} else if i > 1 {
 			//Get Gameround information
 			spielRunde := strings.Split(line, ";")
-			spiel, err := ParseSpiel(spielRunde)
+			spiel, err := ParseSpiel(spielRunde[:spieleranzahl+1])
 			if err == nil {
 				docSkatrunde.Spielverlauf = append(docSkatrunde.Spielverlauf, *spiel)
 			} else {
-				log.Printf("[line %d] Error parsing DocSpiel: %s\n", i+1, err)
+				log.Fatalf("[line %d] Error parsing DocSpiel: %s\n", i+1, err)
 			}
 		}
 	}
@@ -94,7 +90,8 @@ func ParseSkatCsvFile(input string) skat.DocSkatrunde {
 }
 
 func main() {
-	filePath := "../game_data.csv"
+	//filePath := "../game_data.csv"
+	filePath := "../20241204_bierlachs.csv"
 	content, err := os.ReadFile(filePath)
 
 	if err != nil {
@@ -113,10 +110,10 @@ func main() {
 
 	//transfer Skatrunde -> DocSkatrunde Bierlachs
 	var bierlachsSkatrunde = skatrunde.ToDocSkatrunde(skat.Bierlachs)
-	log.Printf("[Transformed] Skatrunde -> DocSkatrunde mit Bierlachs : %+v\n", bierlachsSkatrunde)
+	log.Printf("[Transformed] Skatrunde -> DocSkatrunde mit Bierlachs\n%s\n", bierlachsSkatrunde.ToString())
 
 	//transfer Skatrunde -> DocSkatrunde LeipzigerSkat
 	var leipzigSkatrunde = skatrunde.ToDocSkatrunde(skat.LeipzigerSkat)
-	log.Printf("[Transformed] Skatrunde -> DocSkatrunde mit LeipzigerSkat : %+v\n", leipzigSkatrunde)
+	log.Printf("[Transformed] Skatrunde -> DocSkatrunde mit LeipzigerSkat\n%s\n", leipzigSkatrunde.ToString())
 
 }

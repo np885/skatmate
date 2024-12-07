@@ -62,6 +62,17 @@ func getCSVFilesFromDir(dir string) ([]string, error) {
 	return csvFiles, nil
 }
 
+func getDocSkatrundeFromFile(filepath string) skat.DocSkatrunde {
+	content, err := os.ReadFile(filepath)
+	if err != nil {
+		log.Fatalf("Faild to read file: %w", err)
+	}
+	strContent := string(content)
+
+	docSkatrunde := ParseSkatCsvFile(strContent)
+	return docSkatrunde
+}
+
 func main() {
 	//An programmargument is either a file or a directory
 	args := os.Args
@@ -72,22 +83,19 @@ func main() {
 	}
 	var skatrunden []skat.Skatrunde
 
+	//Paralleles Einlesen der Files
 	startImportCSVFiles := time.Now()
-
-	for _, filepath := range csvFiles {
-		content, err := os.ReadFile(filepath)
-		if err != nil {
-			log.Fatalf("Faild to read file: %w", err)
-		}
-		strContent := string(content)
-
-		docSkatrunde := ParseSkatCsvFile(strContent)
-
-		skatrunden = append(skatrunden, docSkatrunde.ToSkatrunde())
+	c := make(chan skat.DocSkatrunde)
+	for _, csvFilepath := range csvFiles {
+		go func() { c <- getDocSkatrundeFromFile(csvFilepath) }()
 	}
 
+	for range csvFiles {
+		docSkatrunde := <-c
+		skatrunden = append(skatrunden, docSkatrunde.ToSkatrunde())
+	}
 	elapsedImportCSVFiles := time.Since(startImportCSVFiles)
-	log.Printf("Import CSV-Files took %s", elapsedImportCSVFiles)
+	log.Printf("Parallel: Import CSV-Files took %s", elapsedImportCSVFiles)
 
 	log.Printf("Skatrunden geladen, Anzhal: %d\n", len(skatrunden))
 	for _, skatrunde := range skatrunden {
